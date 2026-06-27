@@ -77,6 +77,15 @@ jobs:
         run: make ci
         working-directory: container-k8s
 
+      - name: Upload coverage reports
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v7
+        with:
+          name: container-k8s-coverage
+          path: |
+            container-k8s/coverage.lcov
+            container-k8s/coverage.xml
+
       - name: Run frozen branch validation
         if: >
           github.event_name == 'push' &&

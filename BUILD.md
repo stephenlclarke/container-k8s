@@ -68,7 +68,7 @@ Run the default validation workflow:
 make ci
 ```
 
-`make ci` runs Markdown linting, Homebrew formula Ruby syntax checks, Swift tests, a placeholder coverage gate, the debug build, and a CLI smoke test. The coverage gate is intentionally a placeholder until implementation code lands and Swift coverage export is configured.
+`make ci` runs coverage-tool unit tests, Markdown linting, Homebrew formula Ruby syntax checks, Swift tests with coverage instrumentation, the coverage threshold gate, the debug build, and a CLI smoke test.
 
 Run faster local checks with:
 
@@ -81,6 +81,27 @@ Run tests directly with:
 ```sh
 make test
 ```
+
+Generate Swift coverage reports and enforce the minimum coverage threshold:
+
+```sh
+make coverage-check
+```
+
+The default threshold is 80 percent. Override it locally with:
+
+```sh
+COVERAGE_MIN=90 make coverage-check
+```
+
+Generated coverage reports are:
+
+```text
+coverage.lcov
+coverage.xml
+```
+
+`coverage.xml` uses the SonarQube generic coverage format and is referenced by `sonar-project.properties`.
 
 Run the CLI smoke test against an already built debug executable:
 

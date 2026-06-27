@@ -19,7 +19,13 @@ The current validation target is:
 make ci
 ```
 
-This covers Markdown linting, formula syntax checks, Swift tests, a placeholder coverage gate, the debug build, and CLI smoke tests.
+This covers coverage-tool unit tests, Markdown linting, formula syntax checks, Swift tests with coverage instrumentation, the 80 percent minimum coverage gate, the debug build, and CLI smoke tests.
+
+Current source coverage is above the minimum gate:
+
+```text
+Swift coverage: 92.37%
+```
 
 ## Packaging
 

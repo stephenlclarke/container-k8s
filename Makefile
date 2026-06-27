@@ -21,6 +21,7 @@ SHELL := /bin/bash
 SWIFT ?= swift
 PYTHON ?= python3
 MARKDOWNLINT ?= markdownlint
+COVERAGE_MIN ?= 80
 DIST_DIR ?= dist
 PLUGIN_ARCHIVE ?= container-k8s-plugin.tar.gz
 K8S_VERSION ?= 0.1.0
@@ -30,14 +31,18 @@ CONTAINER_K8S_COMMIT ?= $(shell git rev-parse --verify HEAD 2>/dev/null || print
 CONTAINER_K8S_SOURCE ?= $(shell $(PYTHON) -c 'import subprocess; result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True); url = result.stdout.strip() if result.returncode == 0 else ""; url = url[len("git@github.com:"):] if url.startswith("git@github.com:") else url; url = url[len("https://github.com/"):] if url.startswith("https://github.com/") else url; url = url[:-4] if url.endswith(".git") else url; print(url or "unspecified")')
 CONTAINER_REF ?= $(shell sed -n '1{s/[[:space:]]//g;p;q;}' APPLE_CONTAINER_REF 2>/dev/null || printf 'unspecified')
 MARKDOWN_FILES := README.md BUILD.md BRANCHES.md CODE_OF_CONDUCT.md CONTRIBUTING.md DESIGN.md INSTALL.md PLAN.md SECURITY.md STATUS.md SUPPORT.md .github/pull_request_template.md
+SWIFT_RUNTIME_RESOURCE_PATH ?= $(shell $(SWIFT) -print-target-info 2>/dev/null | $(PYTHON) -c 'import json, sys; print(json.load(sys.stdin).get("paths", {}).get("runtimeResourcePath", ""))' 2>/dev/null || true)
+SWIFT_TOOLCHAIN_USR_DIR := $(patsubst %/lib/swift,%,$(SWIFT_RUNTIME_RESOURCE_PATH))
+SWIFT_LLVM_COV ?= $(firstword $(wildcard $(SWIFT_TOOLCHAIN_USR_DIR)/bin/llvm-cov) $(shell xcrun --find llvm-cov 2>/dev/null || command -v llvm-cov 2>/dev/null || true))
+SWIFT_LLVM_PROFDATA ?= $(firstword $(wildcard $(SWIFT_TOOLCHAIN_USR_DIR)/bin/llvm-profdata) $(shell xcrun --find llvm-profdata 2>/dev/null || command -v llvm-profdata 2>/dev/null || true))
 
-.PHONY: all workflow ci check lint format fmt resolve build build-release run test coverage-check cli-smoke cli-smoke-built package package-release package-debug package-built clean sonar-scan
+.PHONY: all workflow ci check lint format fmt resolve build build-release run test swift-coverage coverage coverage-check coverage-tools-test cli-smoke cli-smoke-built package package-release package-debug package-built clean sonar-scan
 
 all: workflow
 
 workflow: ci package
 
-ci: check test coverage-check build cli-smoke-built
+ci: check coverage-check build cli-smoke-built
 
 resolve:
 	$(SWIFT) package resolve
@@ -54,10 +59,48 @@ run:
 test:
 	$(SWIFT) test
 
-coverage-check: test
-	@printf 'coverage threshold gate is not enabled until Swift coverage export lands\n'
+swift-coverage:
+	@if [[ -z "$(SWIFT_LLVM_COV)" ]]; then \
+		printf 'llvm-cov is required; install the active Swift toolchain or set SWIFT_LLVM_COV=/path/to/llvm-cov\n' >&2; \
+		exit 1; \
+	fi
+	@if [[ -z "$(SWIFT_LLVM_PROFDATA)" ]]; then \
+		printf 'llvm-profdata is required; install the active Swift toolchain or set SWIFT_LLVM_PROFDATA=/path/to/llvm-profdata\n' >&2; \
+		exit 1; \
+	fi
+	@rm -f .build/*/debug/codecov/*.profraw .build/*/debug/codecov/*.profdata .build/codecov/fallback.profdata coverage.lcov coverage.xml
+	$(SWIFT) test --enable-code-coverage
+	test_binary="$$(find .build -path '*.xctest/Contents/MacOS/container-k8sPackageTests' -type f | head -n 1)"; \
+	profile=".build/codecov/fallback.profdata"; \
+	if [[ -z "$$test_binary" ]]; then \
+		printf 'Swift test binary is missing; run swift test --enable-code-coverage before exporting coverage\n' >&2; \
+		exit 2; \
+	fi; \
+	raw_profile_count="$$(find .build -name '*.profraw' -type f | wc -l | tr -d ' ')"; \
+	if [[ "$$raw_profile_count" -eq 0 ]]; then \
+		printf 'Swift coverage profile is missing and no raw .profraw files were found\n' >&2; \
+		exit 2; \
+	fi; \
+	mkdir -p .build/codecov; \
+	find .build -name '*.profraw' -type f -print0 | xargs -0 "$(SWIFT_LLVM_PROFDATA)" merge -sparse -o "$$profile"; \
+	"$(SWIFT_LLVM_COV)" export \
+		-format=lcov \
+		-instr-profile="$$profile" \
+		"$$test_binary" \
+		--sources Sources/K8sCore \
+		> coverage.lcov; \
+	$(PYTHON) Tools/coverage/lcov-to-sonarqube-generic.py coverage.lcov coverage.xml .
 
-lint:
+coverage: swift-coverage
+
+coverage-check: coverage
+	$(PYTHON) Tools/coverage/check-coverage.py --minimum "$(COVERAGE_MIN)" --swift coverage.xml
+
+coverage-tools-test:
+	$(PYTHON) -m py_compile Tools/coverage/*.py Tools/release/*.py
+	$(PYTHON) -m unittest discover Tools/coverage
+
+lint: coverage-tools-test
 	$(MARKDOWNLINT) $(MARKDOWN_FILES)
 	ruby -c Formula/container-k8s.rb
 	ruby -c Formula/container-k8s-snapshot.rb
@@ -101,6 +144,10 @@ package-built:
 	shasum -a 256 "$(PLUGIN_ARCHIVE)" > "$(PLUGIN_ARCHIVE).sha256"
 
 sonar-scan:
+	@test -f coverage.xml || { \
+		printf 'coverage.xml is missing; run make coverage or make ci before make sonar-scan\n' >&2; \
+		exit 2; \
+	}
 	@test -n "$${SONAR_TOKEN:-$${SONAR_TOKEN_PERSONAL:-}}" || { \
 		printf 'SONAR_TOKEN or SONAR_TOKEN_PERSONAL is required for sonar-scan\n' >&2; \
 		exit 2; \
@@ -108,4 +155,4 @@ sonar-scan:
 	sonar-scanner
 
 clean:
-	rm -rf .build .swiftpm "$(DIST_DIR)" "$(PLUGIN_ARCHIVE)" "$(PLUGIN_ARCHIVE).sha256" coverage.lcov coverage.xml
+	rm -rf .build .swiftpm "$(DIST_DIR)" "$(PLUGIN_ARCHIVE)" "$(PLUGIN_ARCHIVE).sha256" .scannerwork coverage.lcov coverage.xml
