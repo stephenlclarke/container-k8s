@@ -54,8 +54,10 @@ final class K8sBuildInfoTests: XCTestCase {
     }
 
     func testLoadFallsBackToLocalInfoWhenConfiguredFileCannotDecode() {
-        setenv("CONTAINER_K8S_BUILD_INFO", "/tmp/container-k8s-missing-build-info.json", 1)
-        setenv("CONTAINER_K8S_GIT", "/tmp/container-k8s-missing-git", 1)
+        let missingDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        setenv("CONTAINER_K8S_BUILD_INFO", missingDirectory.appendingPathComponent("build-info.json").path, 1)
+        setenv("CONTAINER_K8S_GIT", missingDirectory.appendingPathComponent("git").path, 1)
 
         let info = K8sBuildInfo.load()
 

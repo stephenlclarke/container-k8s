@@ -17,6 +17,7 @@
 
 """Convert LCOV line coverage into SonarQube generic coverage XML."""
 
+import posixpath
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -27,15 +28,34 @@ def usage() -> None:
     print("usage: lcov-to-sonarqube-generic.py <input.lcov> <output.xml> [project-root]", file=sys.stderr)
 
 
-def relative_path(path: str, root: Path) -> str:
+def project_path_argument(argument: str, root: Path, must_exist: bool) -> Path:
+    """Return a CLI path only after proving it remains inside the project root."""
+    raw_path = Path(argument)
+    candidate = raw_path if raw_path.is_absolute() else root / raw_path
+    resolved = candidate.resolve(strict=must_exist)
+    resolved.relative_to(root)
+    if must_exist and not resolved.is_file():
+        raise ValueError(f"expected a file inside project root: {argument}")
+    return resolved
+
+
+def clean_relative_path(path: str) -> str | None:
+    """Normalize and reject coverage paths that escape the project."""
+    normalized = posixpath.normpath(path.replace("\\", "/"))
+    if normalized in ("", ".") or normalized == ".." or normalized.startswith("../") or normalized.startswith("/"):
+        return None
+    return normalized
+
+
+def relative_path(path: str, root: Path) -> str | None:
     """Return a Sonar-friendly path relative to the project when possible."""
-    source = Path(path)
-    if source.is_absolute():
-        try:
-            return source.resolve().relative_to(root).as_posix()
-        except ValueError:
-            return source.as_posix()
-    return source.as_posix()
+    root_prefix = root.as_posix().rstrip("/") + "/"
+    source = path.strip().replace("\\", "/")
+    if source.startswith(root_prefix):
+        return clean_relative_path(source[len(root_prefix) :])
+    if source.startswith("/"):
+        return None
+    return clean_relative_path(source)
 
 
 def parse_lcov(path: Path, root: Path) -> dict[str, dict[int, bool]]:
@@ -47,7 +67,8 @@ def parse_lcov(path: Path, root: Path) -> dict[str, dict[int, bool]]:
         line = raw_line.strip()
         if line.startswith("SF:"):
             current = relative_path(line[3:], root)
-            files.setdefault(current, {})
+            if current is not None:
+                files.setdefault(current, {})
             continue
         if line.startswith("DA:") and current is not None:
             line_number_text, count_text, *_ = line[3:].split(",")
@@ -83,11 +104,15 @@ def main() -> int:
         usage()
         return 2
 
-    input_path = Path(sys.argv[1])
-    output_path = Path(sys.argv[2])
     root = Path(sys.argv[3] if len(sys.argv) == 4 else ".").resolve()
-    files = parse_lcov(input_path, root)
-    write_generic_coverage(files, output_path)
+    try:
+        input_path = project_path_argument(sys.argv[1], root, must_exist=True)
+        output_path = project_path_argument(sys.argv[2], root, must_exist=False)
+        files = parse_lcov(input_path, root)
+        write_generic_coverage(files, output_path)
+    except (OSError, ValueError) as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
     return 0
 
 
