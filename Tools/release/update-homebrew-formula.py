@@ -15,10 +15,12 @@ def replace_line(lines: list[str], prefix: str, replacement: str) -> list[str]:
 
 def formula_path(formula: str) -> Path:
     try:
-        return FORMULA_PATHS[formula]
+        path = FORMULA_PATHS[formula].resolve()
     except KeyError as error:
         allowed = ", ".join(sorted(FORMULA_PATHS))
         raise ValueError(f"unsupported formula {formula!r}; expected one of: {allowed}") from error
+    path.relative_to(FORMULA_DIR.resolve())
+    return path
 
 
 def main() -> None:
@@ -50,7 +52,8 @@ def main() -> None:
             continue
         updated.append(line)
 
-    path.write_text("\n".join(updated) + "\n", encoding="utf-8")
+    with path.open("w", encoding="utf-8") as formula_file:
+        formula_file.write("\n".join(updated) + "\n")
 
 
 if __name__ == "__main__":
