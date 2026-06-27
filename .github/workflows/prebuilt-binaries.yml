@@ -181,7 +181,7 @@ jobs:
           url="https://github.com/stephenlclarke/container-k8s/releases/download/${RELEASE_TAG}/${ASSET}"
           sha256="$(awk '{print $1}' "${RUNNER_TEMP}/${ASSET}.sha256")"
           python3 container-k8s/Tools/release/update-homebrew-formula.py \
-            --formula "homebrew-tap/Formula/${FORMULA}" \
+            --formula "$FORMULA" \
             --url "$url" \
             --version "$VERSION" \
             --asset "$ASSET" \

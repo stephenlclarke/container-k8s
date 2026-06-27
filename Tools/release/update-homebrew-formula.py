@@ -2,14 +2,28 @@
 import argparse
 from pathlib import Path
 
+FORMULA_DIR = Path("homebrew-tap") / "Formula"
+FORMULA_PATHS = {
+    "container-k8s.rb": FORMULA_DIR / "container-k8s.rb",
+    "container-k8s-snapshot.rb": FORMULA_DIR / "container-k8s-snapshot.rb",
+}
+
 
 def replace_line(lines: list[str], prefix: str, replacement: str) -> list[str]:
     return [replacement if line.lstrip().startswith(prefix) else line for line in lines]
 
 
+def formula_path(formula: str) -> Path:
+    try:
+        return FORMULA_PATHS[formula]
+    except KeyError as error:
+        allowed = ", ".join(sorted(FORMULA_PATHS))
+        raise ValueError(f"unsupported formula {formula!r}; expected one of: {allowed}") from error
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--formula", required=True)
+    parser.add_argument("--formula", required=True, choices=sorted(FORMULA_PATHS))
     parser.add_argument("--url", required=True)
     parser.add_argument("--version", required=True)
     parser.add_argument("--asset", required=True)
@@ -17,7 +31,7 @@ def main() -> None:
     parser.add_argument("--sha256", required=True)
     args = parser.parse_args()
 
-    path = Path(args.formula)
+    path = formula_path(args.formula)
     lines = path.read_text(encoding="utf-8").splitlines()
     lines = replace_line(lines, "url ", f'  url "{args.url}"')
     lines = replace_line(lines, "sha256 ", f'  sha256 "{args.sha256}"')
