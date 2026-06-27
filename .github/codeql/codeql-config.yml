@@ -1,0 +1,7 @@
+name: "container-k8s CodeQL config"
+
+paths:
+  - Sources
+
+paths-ignore:
+  - Tests

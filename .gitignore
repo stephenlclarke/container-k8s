@@ -1,0 +1,15 @@
+.build/
+.swiftpm/
+.local/
+.vscode/
+.DS_Store
+__pycache__/
+bin/
+dist/
+coverage.report
+coverage.lcov
+coverage.xml
+coverage.out
+*.profraw
+.scannerwork/
+container-k8s-plugin.tar.gz

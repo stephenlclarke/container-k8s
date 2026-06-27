@@ -1,0 +1,59 @@
+name: Homebrew
+
+on:
+  push:
+    branches:
+      - main
+      - "release/**"
+      - "snapshot/**"
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: homebrew-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  formula:
+    name: Formula Syntax
+    runs-on: macos-26
+    steps:
+      - name: Checkout container-k8s
+        uses: actions/checkout@v7
+
+      - name: Validate Ruby syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${GITHUB_REF_NAME}" in
+            snapshot/*)
+              ruby -c Formula/container-k8s-snapshot.rb
+              ;;
+            *)
+              ruby -c Formula/container-k8s.rb
+              ;;
+          esac
+
+      - name: Inspect formula
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew tap stephenlclarke/container-k8s "${GITHUB_WORKSPACE}"
+          brew trust --tap stephenlclarke/container-k8s
+          case "${GITHUB_REF_NAME}" in
+            snapshot/*)
+              brew info --formula stephenlclarke/container-k8s/container-k8s-snapshot
+              ;;
+            *)
+              brew info --formula stephenlclarke/container-k8s/container-k8s
+              ;;
+          esac
