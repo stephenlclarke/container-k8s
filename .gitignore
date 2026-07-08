@@ -13,3 +13,4 @@ coverage.out
 *.profraw
 .scannerwork/
 container-k8s-plugin.tar.gz
+container-k8s-plugin.tar.gz.sha256
