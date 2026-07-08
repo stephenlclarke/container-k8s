@@ -37,7 +37,7 @@ k8s/config.toml
 k8s/resources/build-info.json
 ```
 
-The release lane uses `Formula/container-k8s.rb`; the snapshot lane uses `Formula/container-k8s-snapshot.rb`.
+Stable packages use `Formula/container-k8s.rb`. Main validation packages prove the current branch can build an archive but do not update Homebrew.
 
 ## Known Gaps
 

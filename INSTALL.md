@@ -2,27 +2,26 @@
 
 This guide explains how to install the `container-k8s` plugin. Source build, test, and package steps are covered in [BUILD.md](BUILD.md); branch rules are covered in [BRANCHES.md](BRANCHES.md).
 
-## Install Lanes
+## Homebrew Formula
 
-`main` is the active development branch and keeps the useful SonarCloud badges. Homebrew installs should normally use frozen branches published as prebuilt release assets:
+Homebrew installs use the stable package published from a bare semantic source tag:
 
-| Lane | Formula | Build type | Use when |
-| --- | --- | --- | --- |
-| Release | `container-k8s` | release | You want the latest frozen release build. |
-| Snapshot | `container-k8s-snapshot` | debug | You want the latest frozen debug snapshot. |
+| Formula | Build type | Use when |
+| --- | --- | --- |
+| `container-k8s` | release | Install this. It registers the `k8s` plugin payload with the active `container` CLI. |
 
-Both lanes install prebuilt GitHub release assets. They do not build Swift source on the user's machine and do not require Xcode for normal installation.
+The formula installs a prebuilt GitHub release asset. It does not build Swift source on the user's machine and does not require Xcode for normal installation.
 
 ## Requirements
 
 - Apple silicon Mac.
 - macOS with a compatible Apple `container` install.
 - Homebrew.
-- No running `container` service from a different install source while switching lanes.
+- No running `container` service from a different install source while installing or upgrading the plugin.
 
 ## Install From The Aggregate Tap
 
-Install the latest frozen release:
+Install the latest stable package:
 
 ```sh
 brew tap stephenlclarke/tap
@@ -33,20 +32,6 @@ ln -sfn "$(brew --prefix container-k8s)/libexec/container-plugins/k8s" "$(brew -
 brew services restart container
 container k8s version
 ```
-
-Install the latest frozen snapshot:
-
-```sh
-brew tap stephenlclarke/tap
-brew install stephenlclarke/tap/container
-brew install stephenlclarke/tap/container-k8s-snapshot
-mkdir -p "$(brew --prefix container)/libexec/container-plugins"
-ln -sfn "$(brew --prefix container-k8s-snapshot)/libexec/container-plugins/k8s" "$(brew --prefix container)/libexec/container-plugins/k8s"
-brew services restart container
-container k8s version
-```
-
-Do not install both `container-k8s` and `container-k8s-snapshot` at the same time; they both provide the `container-k8s` command and the `k8s` plugin payload.
 
 ## Install From A Source Branch
 
@@ -109,16 +94,18 @@ Run a read-only bootstrap command:
 container k8s run demo --dry-run
 ```
 
-## Upgrade Or Switch Lanes
+## Upgrade
 
-Stop the active service, uninstall the old plugin lane, install the new lane, then register the plugin again:
+Upgrade the stable package and register the plugin again:
 
 ```sh
-brew services stop container || true
-brew uninstall container-k8s container-k8s-snapshot || true
+brew update
+brew upgrade stephenlclarke/tap/container-k8s
+mkdir -p "$(brew --prefix container)/libexec/container-plugins"
+ln -sfn "$(brew --prefix container-k8s)/libexec/container-plugins/k8s" "$(brew --prefix container)/libexec/container-plugins/k8s"
+brew services restart container
+container k8s version
 ```
-
-Then run either the release or snapshot install commands above.
 
 ## Uninstall
 
@@ -126,7 +113,7 @@ Remove the plugin and Homebrew-installed `container` package:
 
 ```sh
 brew services stop container || true
-brew uninstall container-k8s container-k8s-snapshot container || true
+brew uninstall container-k8s container || true
 brew untap stephenlclarke/tap || true
 ```
 

@@ -1,16 +1,14 @@
 class ContainerK8s < Formula
   desc "Kubernetes development cluster plugin for Apple's container CLI"
   homepage "https://github.com/stephenlclarke/container-k8s"
-  url "https://github.com/stephenlclarke/container-k8s/releases/download/homebrew-main/container-k8s-plugin-main-release-arm64.tar.gz"
+  url "https://github.com/stephenlclarke/container-k8s/releases/download/0.1.0/container-k8s-plugin-release-arm64.tar.gz"
   sha256 :no_check
-  version "release-bootstrap"
+  version "0.1.0"
   license "Apache-2.0"
 
   depends_on "container"
   depends_on arch: :arm64
   depends_on macos: :sequoia
-
-  conflicts_with "container-k8s-snapshot", because: "both install the container-k8s command and k8s plugin"
 
   def install
     plugin = libexec/"container-plugins/k8s"
@@ -30,8 +28,8 @@ class ContainerK8s < Formula
         ln -sfn "#{opt_libexec}/container-plugins/k8s" "$(brew --prefix container)/libexec/container-plugins/k8s"
         brew services restart container
 
-      This formula installs the release bootstrap prebuilt release asset:
-        container-k8s-plugin-main-release-arm64.tar.gz
+      This formula installs the stable release prebuilt package asset:
+        container-k8s-plugin-release-arm64.tar.gz
     EOS
   end
 

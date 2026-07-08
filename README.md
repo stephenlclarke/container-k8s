@@ -24,7 +24,7 @@ The repository name and plugin command stay Kubernetes-oriented: `container k8s 
 
 ## Current Status
 
-This repository is at bootstrap stage. It includes the Swift plugin package, command surface, documentation, CI/CD lanes, Homebrew formula scaffolding, and release automation. Runtime implementation is intentionally tracked in [PLAN.md](PLAN.md) before the first cluster-control code lands.
+This repository is at bootstrap stage. It includes the Swift plugin package, command surface, documentation, CI, Homebrew formula scaffolding, and release package automation. Runtime implementation is intentionally tracked in [PLAN.md](PLAN.md) before the first cluster-control code lands.
 
 The initial command surface mirrors the Apple discussion:
 
@@ -49,8 +49,8 @@ container k8s delete my-cluster
 
 ## Documentation
 
-- [INSTALL.md](INSTALL.md): install Homebrew release or snapshot lanes and register the plugin with `container`.
-- [BRANCHES.md](BRANCHES.md): understand active `main` development and frozen `release/*` / `snapshot/*` install branches.
+- [INSTALL.md](INSTALL.md): install the Homebrew package and register the plugin with `container`.
+- [BRANCHES.md](BRANCHES.md): understand active `main` development, semantic package tags, and Homebrew formula policy.
 - [BUILD.md](BUILD.md): build, test, package, and run contributor validation.
 - [DESIGN.md](DESIGN.md): understand the plugin boundary and planned runtime model.
 - [PLAN.md](PLAN.md): review the staged implementation roadmap based on the Apple discussion.

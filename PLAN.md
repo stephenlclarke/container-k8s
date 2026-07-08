@@ -8,8 +8,8 @@ This roadmap is based on [`apple/container` discussion 1673](https://github.com/
 - [x] Clone it to `~/github/container-k8s`.
 - [x] Add Swift plugin package with `k8s` executable.
 - [x] Add README badges and project documentation.
-- [x] Add `main`, `release/*`, and `snapshot/*` CI/CD lane scaffolding.
-- [x] Add Homebrew release and snapshot formula scaffolding.
+- [x] Add `main` CI/CD scaffolding.
+- [x] Add Homebrew stable formula scaffolding.
 
 ## Stage 1: Single-Node Cluster Proof
 

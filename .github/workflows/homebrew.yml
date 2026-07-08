@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - "release/**"
-      - "snapshot/**"
   pull_request:
     branches:
       - main
@@ -34,14 +32,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          case "${GITHUB_REF_NAME}" in
-            snapshot/*)
-              ruby -c Formula/container-k8s-snapshot.rb
-              ;;
-            *)
-              ruby -c Formula/container-k8s.rb
-              ;;
-          esac
+          ruby -c Formula/container-k8s.rb
 
       - name: Inspect formula
         shell: bash
@@ -49,11 +40,4 @@ jobs:
           set -euo pipefail
           brew tap stephenlclarke/container-k8s "${GITHUB_WORKSPACE}"
           brew trust --tap stephenlclarke/container-k8s
-          case "${GITHUB_REF_NAME}" in
-            snapshot/*)
-              brew info --formula stephenlclarke/container-k8s/container-k8s-snapshot
-              ;;
-            *)
-              brew info --formula stephenlclarke/container-k8s/container-k8s
-              ;;
-          esac
+          brew info --formula stephenlclarke/container-k8s/container-k8s

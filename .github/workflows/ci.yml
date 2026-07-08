@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-      - "release/**"
-      - "snapshot/**"
   pull_request:
     branches:
       - main
@@ -85,31 +83,6 @@ jobs:
           path: |
             container-k8s/coverage.lcov
             container-k8s/coverage.xml
-
-      - name: Run frozen branch validation
-        if: >
-          github.event_name == 'push' &&
-          (startsWith(github.ref, 'refs/heads/release/') ||
-           startsWith(github.ref, 'refs/heads/snapshot/'))
-        timeout-minutes: 25
-        shell: bash
-        working-directory: container-k8s
-        run: |
-          set -euo pipefail
-          case "${GITHUB_REF_NAME}" in
-            release/*)
-              ruby -c Formula/container-k8s.rb
-              make package-release PLUGIN_ARCHIVE=container-k8s-plugin-release-arm64.tar.gz
-              ;;
-            snapshot/*)
-              ruby -c Formula/container-k8s-snapshot.rb
-              make package-debug PLUGIN_ARCHIVE=container-k8s-plugin-snapshot-arm64.tar.gz
-              ;;
-            *)
-              printf 'Unsupported frozen branch: %s\n' "${GITHUB_REF_NAME}" >&2
-              exit 1
-              ;;
-          esac
 
       - name: Install Sonar Scanner CLI
         if: >

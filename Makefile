@@ -26,7 +26,7 @@ DIST_DIR ?= dist
 PLUGIN_ARCHIVE ?= container-k8s-plugin.tar.gz
 K8S_VERSION ?= 0.1.0
 CONTAINER_K8S_BRANCH ?= $(shell git branch --show-current 2>/dev/null || git rev-parse --short HEAD)
-CONTAINER_K8S_LANE ?= $(shell $(PYTHON) -c 'branch = "$(CONTAINER_K8S_BRANCH)"; print("main" if branch == "main" else "release" if branch.startswith("release/") else "snapshot" if branch.startswith("snapshot/") else "detached" if branch in ("", "HEAD") else "development")')
+CONTAINER_K8S_LANE ?= $(shell $(PYTHON) -c 'branch = "$(CONTAINER_K8S_BRANCH)"; print("main" if branch == "main" else "detached" if branch in ("", "HEAD") else "development")')
 CONTAINER_K8S_COMMIT ?= $(shell git rev-parse --verify HEAD 2>/dev/null || printf 'unspecified')
 CONTAINER_K8S_SOURCE ?= $(shell $(PYTHON) -c 'import subprocess; result = subprocess.run(["git", "remote", "get-url", "origin"], capture_output=True, text=True); url = result.stdout.strip() if result.returncode == 0 else ""; url = url[len("git@github.com:"):] if url.startswith("git@github.com:") else url; url = url[len("https://github.com/"):] if url.startswith("https://github.com/") else url; url = url[:-4] if url.endswith(".git") else url; print(url or "unspecified")')
 CONTAINER_REF ?= $(shell sed -n '1{s/[[:space:]]//g;p;q;}' APPLE_CONTAINER_REF 2>/dev/null || printf 'unspecified')
@@ -103,7 +103,6 @@ coverage-tools-test:
 lint: coverage-tools-test
 	$(MARKDOWNLINT) $(MARKDOWN_FILES)
 	ruby -c Formula/container-k8s.rb
-	ruby -c Formula/container-k8s-snapshot.rb
 
 check: lint
 
@@ -122,7 +121,7 @@ cli-smoke-built:
 	.build/debug/k8s run demo --dry-run >/dev/null
 	.build/debug/k8s load-image demo my-app:latest --dry-run >/dev/null
 
-package: package-debug
+package: package-release
 
 package-release: build-release
 	$(MAKE) package-built BUILD_CONFIGURATION=release BUILD_PRODUCT=.build/release/k8s BUILD_TYPE=release

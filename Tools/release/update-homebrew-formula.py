@@ -5,7 +5,6 @@ from pathlib import Path
 FORMULA_DIR = Path("homebrew-tap") / "Formula"
 FORMULA_PATHS = {
     "container-k8s.rb": FORMULA_DIR / "container-k8s.rb",
-    "container-k8s-snapshot.rb": FORMULA_DIR / "container-k8s-snapshot.rb",
 }
 
 
@@ -42,8 +41,8 @@ def main() -> None:
     updated: list[str] = []
     skip_next_asset = False
     for line in lines:
-        if "This formula installs the " in line and " prebuilt release asset:" in line:
-            updated.append(f"      This formula installs the {args.label} prebuilt release asset:")
+        if "This formula installs the " in line and " prebuilt package asset:" in line:
+            updated.append(f"      This formula installs the {args.label} prebuilt package asset:")
             skip_next_asset = True
             continue
         if skip_next_asset:

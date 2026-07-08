@@ -1,34 +1,21 @@
 # Branch Guide
 
-This repository uses `main` as the active development branch. README badges, full CI, CodeQL, SonarCloud quality reporting, and normal integration work all stay on `main`.
+This repository uses `main` as the active, releasable development branch. README badges, full CI, CodeQL, SonarCloud quality reporting, package validation, and normal integration work all stay on `main`.
 
-Frozen install branches are created from validated `main` commits when a release or snapshot should be made available through prebuilt GitHub release assets and the Homebrew tap.
+Use short-lived topic branches only for review or recovery. Land validated work back on `main`, then delete those branches unless they are still needed for an open review.
 
-## Branch Model
+Do not create additional long-lived integration or packaging lanes. Historical non-main branches are references only.
 
-| Branch pattern | Purpose | CI profile | README badges |
-| --- | --- | --- | --- |
-| `main` | Active development and integration branch | Full CI, Quality, CodeQL, SonarCloud | SonarCloud and security badges stay visible. |
-| `release/*` | Frozen release lane for installable release builds | Reduced package and formula validation | SonarCloud badges are removed automatically. |
-| `snapshot/*` | Frozen snapshot lane for installable debug builds | Reduced package and formula validation | SonarCloud badges are removed automatically. |
+## Package Automation
 
-This strategy follows the nearby `container-compose` repository: active development keeps the quality signal visible on one branch, while release and snapshot branches are frozen packaging lanes.
+The prebuilt package workflow publishes two kinds of package artifacts:
 
-## Frozen Branch Automation
-
-Pushing a `release/*` or `snapshot/*` branch starts the frozen branch workflow:
-
-1. Prepare the branch by removing SonarCloud badge lines from `README.md`.
-2. Commit that README change back to the frozen branch when needed.
-3. On the follow-up workflow run for the prepared branch tip, build the prebuilt package.
-4. Publish the package to a branch-specific `homebrew-*` GitHub release.
-5. Update `stephenlclarke/homebrew-tap` so Homebrew installs the matching frozen asset.
-
-`release/*` branches build release packages. `snapshot/*` branches build debug packages.
+- Main validation packages from successful `main` CI runs. These prove the current branch can build a release archive but do not update Homebrew.
+- Stable packages from manual workflow dispatch against a bare semantic source tag such as `0.1.0`. These update `stephenlclarke/tap/container-k8s` when the tap token is available.
 
 The tap update requires the `HOMEBREW_TAP_TOKEN` repository secret with permission to push to `stephenlclarke/homebrew-tap`.
 
-Frozen branch packages include a plugin `build-info.json` file. `container k8s version` reads that file and reports the lane, branch, commit, build type, and `container` pin used for the package.
+Packaged builds include a plugin `build-info.json` file. `container k8s version` reads that file and reports the package lane, branch, commit, build type, and `container` pin used for the package.
 
 ## Local Branch Selection
 
@@ -37,14 +24,6 @@ For active development:
 ```sh
 git -C ~/github/container-k8s checkout main
 git -C ~/github/container checkout main
-```
-
-For a frozen release or snapshot branch, check out the matching `container-k8s` branch and the `container` revision pinned by `APPLE_CONTAINER_REF`:
-
-```sh
-git -C ~/github/container-k8s checkout release/example
-git -C ~/github/container fetch origin
-git -C ~/github/container checkout "$(cat ~/github/container-k8s/APPLE_CONTAINER_REF)"
 ```
 
 The current Swift package is intentionally standalone while the bootstrap command surface settles. Future direct `apple/container` API integration should use the sibling `~/github/container` checkout and keep the pin in `APPLE_CONTAINER_REF` current.

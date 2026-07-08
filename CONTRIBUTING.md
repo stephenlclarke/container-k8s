@@ -31,7 +31,7 @@ make build
 
 ## Branching
 
-Active work targets `main`. Frozen install lanes use `release/*` and `snapshot/*`; see [BRANCHES.md](BRANCHES.md).
+Active work targets `main`; see [BRANCHES.md](BRANCHES.md).
 
 ## Security And Secrets
 
