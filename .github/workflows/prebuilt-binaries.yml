@@ -156,6 +156,9 @@ jobs:
             printf 'package_lane=%s\n' "${package_lane}"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Install Markdown lint
+        run: npm install --global --ignore-scripts markdownlint-cli@0.48.0
+
       - name: Validate package source
         timeout-minutes: 25
         run: make ci
