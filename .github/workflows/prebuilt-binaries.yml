@@ -1,160 +1,98 @@
 name: Prebuilt Binaries
 
 on:
-  workflow_run:
-    workflows:
-      - CI
-    types:
-      - completed
+  push:
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      ref:
-        description: "main or MAJOR.MINOR.PATCH tag to package"
-        required: true
-        type: string
 
-permissions:
-  actions: read
-  contents: write
+permissions: {}
 
 concurrency:
-  group: prebuilt-binaries-${{ github.event.workflow_run.head_branch || inputs.ref || github.ref_name }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.head_branch == 'main' }}
+  group: prebuilt-binaries-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   resolve-publish-context:
     name: Resolve Publish Context
     if: >
       github.repository == 'stephenlclarke/container-k8s' &&
-      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     outputs:
-      publish: ${{ steps.publish.outputs.publish }}
       ref_type: ${{ steps.publish.outputs.ref_type }}
       ref_name: ${{ steps.publish.outputs.ref_name }}
-      checkout_ref: ${{ steps.publish.outputs.checkout_ref }}
       sha: ${{ steps.publish.outputs.sha }}
     steps:
       - name: Resolve publish context
         id: publish
         env:
-          GH_TOKEN: ${{ github.token }}
-          DISPATCH_REF: ${{ inputs.ref }}
-          WORKFLOW_RUN_EVENT: ${{ github.event.workflow_run.event }}
-          WORKFLOW_RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT_REF_NAME: ${{ github.ref_name }}
+          EVENT_REF_TYPE: ${{ github.ref_type }}
+          EVENT_SHA: ${{ github.sha }}
         shell: bash
         run: |
           set -euo pipefail
 
-          publish=false
-          ref_type=""
-          ref_name=""
-          checkout_ref=""
-          sha=""
-          remote="https://github.com/${GITHUB_REPOSITORY}.git"
-
-          resolve_remote_ref() {
-            local ref="$1"
-            if [[ "$ref" == "main" ]]; then
-              local branch_sha
-              branch_sha="$(
-                git ls-remote --heads "$remote" "refs/heads/${ref}" \
-                  | awk '{print $1}' \
-                  | tail -n 1
-              )"
-              if [[ -z "$branch_sha" ]]; then
-                printf 'main branch not found: %s\n' "$ref" >&2
+          case "${EVENT_REF_TYPE}:${EVENT_REF_NAME}" in
+            branch:main)
+              ;;
+            tag:*)
+              if [[ "${GITHUB_EVENT_NAME}" != "workflow_dispatch" ]] ||
+                [[ ! "${EVENT_REF_NAME}" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+                printf 'Stable packages require workflow_dispatch on a bare semantic tag: %s\n' "${EVENT_REF_NAME}" >&2
                 exit 1
               fi
-              ref_type="branch"
-              ref_name="$ref"
-              checkout_ref="$branch_sha"
-              sha="$branch_sha"
-              publish=true
-              return
-            fi
-
-            if [[ "$ref" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
-              local tag_sha
-              tag_sha="$(
-                git ls-remote --tags "$remote" "refs/tags/${ref}" "refs/tags/${ref}^{}" \
-                  | awk '{print $1}' \
-                  | tail -n 1
-              )"
-              if [[ -z "$tag_sha" ]]; then
-                printf 'stable tag not found: %s\n' "$ref" >&2
-                exit 1
-              fi
-              ref_type="tag"
-              ref_name="$ref"
-              checkout_ref="$tag_sha"
-              sha="$tag_sha"
-              publish=true
-              return
-            fi
-
-            printf 'unsupported package ref: %s\n' "$ref" >&2
-            exit 1
-          }
-
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_run" ]]; then
-            if [[ "${WORKFLOW_RUN_EVENT}" != "push" ]]; then
-              printf 'Skipping non-push CI event: %s\n' "${WORKFLOW_RUN_EVENT}"
-            else
-              validate_conclusion="$(
-                gh api --paginate "repos/${GITHUB_REPOSITORY}/actions/runs/${WORKFLOW_RUN_ID}/jobs" \
-                  --jq '.jobs[] | select(.name == "Validate") | .conclusion' \
-                  | tail -n 1
-              )"
-              if [[ "${validate_conclusion}" != "success" ]]; then
-                printf 'Skipping package publish because CI Validate concluded %s.\n' "${validate_conclusion:-missing}"
-              elif [[ "${WORKFLOW_RUN_HEAD_BRANCH}" == "main" ]]; then
-                ref_type="branch"
-                ref_name="${WORKFLOW_RUN_HEAD_BRANCH}"
-                checkout_ref="${WORKFLOW_RUN_HEAD_SHA}"
-                sha="${WORKFLOW_RUN_HEAD_SHA}"
-                publish=true
-              elif [[ "${WORKFLOW_RUN_HEAD_BRANCH}" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
-                printf 'Skipping CI tag package event: %s. Stable packages are created only by workflow_dispatch.\n' "${WORKFLOW_RUN_HEAD_BRANCH}"
-              else
-                printf 'Skipping non-package CI ref: %s\n' "${WORKFLOW_RUN_HEAD_BRANCH}"
-              fi
-            fi
-          elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            if [[ -z "${DISPATCH_REF}" ]]; then
-              printf 'Manual package dispatch requires ref=main or ref=MAJOR.MINOR.PATCH.\n' >&2
+              ;;
+            *)
+              printf 'Unsupported package ref: %s %s\n' "${EVENT_REF_TYPE}" "${EVENT_REF_NAME}" >&2
               exit 1
-            fi
-            resolve_remote_ref "${DISPATCH_REF}"
-          else
-            printf 'Unsupported package event: %s\n' "${GITHUB_EVENT_NAME}" >&2
+              ;;
+          esac
+
+          if [[ ! "${EVENT_SHA}" =~ ^[0-9a-f]{40}$ ]]; then
+            printf 'Package SHA is not a full commit ID: %s\n' "${EVENT_SHA}" >&2
             exit 1
           fi
 
           {
-            printf 'publish=%s\n' "${publish}"
-            printf 'ref_type=%s\n' "${ref_type}"
-            printf 'ref_name=%s\n' "${ref_name}"
-            printf 'checkout_ref=%s\n' "${checkout_ref}"
-            printf 'sha=%s\n' "${sha}"
+            printf 'ref_type=%s\n' "${EVENT_REF_TYPE}"
+            printf 'ref_name=%s\n' "${EVENT_REF_NAME}"
+            printf 'sha=%s\n' "${EVENT_SHA}"
           } >> "$GITHUB_OUTPUT"
 
   package:
     name: Package
     needs: resolve-publish-context
-    if: needs.resolve-publish-context.outputs.publish == 'true'
     runs-on: macos-26
     timeout-minutes: 45
+    permissions:
+      contents: write
     steps:
       - name: Checkout container-k8s
         uses: actions/checkout@v7
         with:
           path: container-k8s
           fetch-depth: 0
-          ref: ${{ needs.resolve-publish-context.outputs.checkout_ref }}
-          token: ${{ github.token }}
+          persist-credentials: false
+
+      - name: Verify package checkout
+        env:
+          PUBLISH_SHA: ${{ needs.resolve-publish-context.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git -C container-k8s rev-parse HEAD)"
+          if [[ "${actual}" != "${PUBLISH_SHA}" ]]; then
+            printf 'Package checkout mismatch: expected %s, got %s\n' "${PUBLISH_SHA}" "${actual}" >&2
+            exit 1
+          fi
+          git -C container-k8s fetch --force origin \
+            refs/heads/main:refs/remotes/origin/main
+          if ! git -C container-k8s merge-base --is-ancestor "${PUBLISH_SHA}" refs/remotes/origin/main; then
+            printf 'Package commit is not reachable from origin/main: %s\n' "${PUBLISH_SHA}" >&2
+            exit 1
+          fi
 
       - name: Select release package
         id: package
@@ -217,6 +155,11 @@ jobs:
             printf 'formula_version=%s\n' "${formula_version}"
             printf 'package_lane=%s\n' "${package_lane}"
           } >> "$GITHUB_OUTPUT"
+
+      - name: Validate package source
+        timeout-minutes: 25
+        run: make ci
+        working-directory: container-k8s
 
       - name: Build package
         run: make package-release PLUGIN_ARCHIVE="${RUNNER_TEMP}/${{ steps.package.outputs.asset }}"

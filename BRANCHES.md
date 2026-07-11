@@ -4,14 +4,16 @@ This repository uses `main` as the active, releasable development branch. README
 
 Use short-lived topic branches only for review or recovery. Land validated work back on `main`, then delete those branches unless they are still needed for an open review.
 
-Do not create additional long-lived integration or packaging lanes. Historical non-main branches are references only.
+Do not create additional long-lived integration or packaging lanes.
 
 ## Package Automation
 
-The prebuilt package workflow publishes two kinds of package artifacts:
+The prebuilt package workflow validates and publishes two kinds of package artifacts:
 
-- Main validation packages from successful `main` CI runs. These prove the current branch can build a release archive but do not update Homebrew.
-- Stable packages from manual workflow dispatch against a bare semantic source tag such as `0.1.0`. These update `stephenlclarke/tap/container-k8s` when the tap token is available.
+- Main validation packages from pushes to `main`. The workflow checks out the pushed commit, verifies it is reachable from `main`, runs `make ci`, and publishes a release archive without updating Homebrew.
+- Stable packages from manual workflow dispatch on a bare semantic source tag such as `0.1.0`. The workflow verifies the tagged commit is reachable from `main`, runs `make ci`, and updates `stephenlclarke/tap/container-k8s` when the tap token is available.
+
+Select the semantic tag as the workflow ref when dispatching a stable package. The workflow does not accept a free-form source-ref input.
 
 The tap update requires the `HOMEBREW_TAP_TOKEN` repository secret with permission to push to `stephenlclarke/homebrew-tap`.
 
