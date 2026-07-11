@@ -61,7 +61,7 @@ jobs:
             ${{ runner.os }}-${{ runner.arch }}-macos26-swiftpm-v1-
 
       - name: Install Markdown lint
-        run: npm install --global markdownlint-cli@0.48.0
+        run: npm install --global --ignore-scripts markdownlint-cli@0.48.0
 
       - name: Print toolchain versions
         run: |
@@ -97,9 +97,11 @@ jobs:
           case "$(uname -m)" in
             arm64)
               scanner_flavor="macosx-aarch64"
+              scanner_sha256="20d12be4081896b337cd873d98ebd3d554be666086a45e31dd84a12ef51c3688"
               ;;
             x86_64)
               scanner_flavor="macosx-x64"
+              scanner_sha256="8afc8bbff9008434e53b31cb681333ff643b999f84ca537db573d0fae8883cdc"
               ;;
             *)
               printf 'Unsupported macOS architecture: %s\n' "$(uname -m)" >&2
@@ -112,8 +114,11 @@ jobs:
           scanner_root="${RUNNER_TEMP}/sonar-scanner-cli"
           rm -rf "$scanner_root"
           mkdir -p "$scanner_root"
-          curl --fail --location --silent --show-error "$scanner_url" --output "${RUNNER_TEMP}/${scanner_name}.zip"
-          unzip -q "${RUNNER_TEMP}/${scanner_name}.zip" -d "$scanner_root"
+          scanner_archive="${RUNNER_TEMP}/${scanner_name}.zip"
+          curl --fail --location --proto '=https' --proto-redir '=https' \
+            --silent --show-error "$scanner_url" --output "$scanner_archive"
+          printf '%s  %s\n' "$scanner_sha256" "$scanner_archive" | shasum -a 256 --check
+          unzip -q "$scanner_archive" -d "$scanner_root"
           printf '%s\n' "${scanner_root}/sonar-scanner-${SONAR_SCANNER_VERSION}-${scanner_flavor}/bin" >> "$GITHUB_PATH"
 
       - name: SonarCloud scan
