@@ -164,9 +164,12 @@ jobs:
       - name: Generate static DocC site
         run: make docs
 
+      - name: Archive DocC site
+        run: tar -czf "${RUNNER_TEMP}/container-k8s-docc.tgz" -C _site .
+
       - name: Upload DocC artifact
         uses: actions/upload-artifact@v7
         with:
           name: container-k8s-docc
-          path: _site
+          path: ${{ runner.temp }}/container-k8s-docc.tgz
           retention-days: 7
