@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD033 -->
 <p>
-  <img align="left" hspace="20" src="docs/images/container-k8s-icon.png" width="147" alt="container-k8s icon: the Kubernetes wheel in front of three container service rows" />
+  <img align="left" hspace="20" src="docs/images/container-k8s-icon.png" width="147" alt="container-k8s icon: the Kubernetes wheel overlapping the standard three-row container service panel" />
   <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml?query=branch%3Amain"><img alt="CI" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml/badge.svg?branch=main" /></a>
   <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml?query=branch%3Amain"><img alt="Quality" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml/badge.svg?branch=main" /></a>
   <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml?query=branch%3Amain"><img alt="Homebrew" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml/badge.svg?branch=main" /></a>
