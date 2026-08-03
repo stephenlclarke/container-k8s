@@ -49,6 +49,7 @@ container k8s delete my-cluster
 
 ## Documentation
 
+- [DocC API reference](https://stephenlclarke.github.io/api/container-k8s/): browse the generated Swift API reference in the integrated container developer documentation.
 - [INSTALL.md](INSTALL.md): install the Homebrew package and register the plugin with `container`.
 - [BRANCHES.md](BRANCHES.md): understand active `main` development, semantic package tags, and Homebrew formula policy.
 - [BUILD.md](BUILD.md): build, test, package, and run contributor validation.
