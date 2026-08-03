@@ -1,22 +1,29 @@
 # container-k8s
 
-[![CI](https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml?query=branch%3Amain)
-[![Quality](https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml/badge.svg?branch=main)](https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml?query=branch%3Amain)
-[![Homebrew](https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml/badge.svg?branch=main)](https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml?query=branch%3Amain)
-[![Prebuilt Binaries](https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml/badge.svg)](https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=bugs)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=coverage)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s)
-[![CodeQL](https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml/badge.svg?branch=main)](https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml?query=branch%3Amain)
-![Repo Visitors](https://visitor-badge.laobi.icu/badge?page_id=stephenlclarke.container-k8s)
+<!-- markdownlint-disable MD033 -->
+<p>
+  <img align="left" hspace="20" src="docs/images/container-k8s-icon.png" width="147" alt="container-k8s icon: the Kubernetes wheel in front of three container service rows" />
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml?query=branch%3Amain"><img alt="CI" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml?query=branch%3Amain"><img alt="Quality" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml?query=branch%3Amain"><img alt="Homebrew" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml"><img alt="Prebuilt Binaries" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml/badge.svg" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=alert_status" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=bugs" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=code_smells" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=coverage" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Duplicated Lines (%)" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=duplicated_lines_density" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Lines of Code" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=ncloc" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=reliability_rating" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=security_rating" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Technical Debt" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=sqale_index" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=sqale_rating" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=vulnerabilities" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml?query=branch%3Amain"><img alt="CodeQL" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml/badge.svg?branch=main" /></a>
+  <img alt="Repo Visitors" src="https://visitor-badge.laobi.icu/badge?page_id=stephenlclarke.container-k8s" />
+</p>
+<br clear="left" />
+<br>
+<!-- markdownlint-enable MD033 -->
 
 `container-k8s` is a standalone plugin scaffold for Kubernetes development cluster workflows on Apple's [`container`](https://github.com/apple/container) CLI. The project tracks the [`container k8s` feature discussion](https://github.com/apple/container/discussions/1673): local Kubernetes clusters implemented with k3s node containers, kubeconfig management, local image loading, and a path toward registry-backed development loops.
 
