@@ -152,3 +152,21 @@ jobs:
         with:
           name: container-k8s-plugin
           path: container-k8s/container-k8s-plugin.tar.gz
+
+  documentation:
+    name: Build DocC Documentation
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - name: Checkout container-k8s
+        uses: actions/checkout@v7
+
+      - name: Generate static DocC site
+        run: make docs
+
+      - name: Upload DocC artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: container-k8s-docc
+          path: _site
+          retention-days: 7

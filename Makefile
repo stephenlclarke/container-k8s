@@ -36,7 +36,7 @@ SWIFT_TOOLCHAIN_USR_DIR := $(patsubst %/lib/swift,%,$(SWIFT_RUNTIME_RESOURCE_PAT
 SWIFT_LLVM_COV ?= $(firstword $(wildcard $(SWIFT_TOOLCHAIN_USR_DIR)/bin/llvm-cov) $(shell xcrun --find llvm-cov 2>/dev/null || command -v llvm-cov 2>/dev/null || true))
 SWIFT_LLVM_PROFDATA ?= $(firstword $(wildcard $(SWIFT_TOOLCHAIN_USR_DIR)/bin/llvm-profdata) $(shell xcrun --find llvm-profdata 2>/dev/null || command -v llvm-profdata 2>/dev/null || true))
 
-.PHONY: all workflow ci check lint format fmt resolve build build-release run test swift-coverage coverage coverage-check coverage-tools-test cli-smoke cli-smoke-built package package-release package-debug package-built clean sonar-scan
+.PHONY: all workflow ci check lint format fmt resolve build build-release run test docs serve-docs swift-coverage coverage coverage-check coverage-tools-test cli-smoke cli-smoke-built package package-release package-debug package-built clean sonar-scan
 
 all: workflow
 
@@ -58,6 +58,12 @@ run:
 
 test:
 	$(SWIFT) test
+
+docs:
+	scripts/make-docs.sh _site api/container-k8s
+
+serve-docs: docs
+	$(PYTHON) -m http.server 8000 --directory _site
 
 swift-coverage:
 	@if [[ -z "$(SWIFT_LLVM_COV)" ]]; then \
@@ -154,4 +160,4 @@ sonar-scan:
 	sonar-scanner
 
 clean:
-	rm -rf .build .swiftpm "$(DIST_DIR)" "$(PLUGIN_ARCHIVE)" "$(PLUGIN_ARCHIVE).sha256" .scannerwork coverage.lcov coverage.xml
+	rm -rf .build .swiftpm "$(DIST_DIR)" "$(PLUGIN_ARCHIVE)" "$(PLUGIN_ARCHIVE).sha256" .scannerwork _site coverage.lcov coverage.xml
