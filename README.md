@@ -1,24 +1,20 @@
 # container-k8s
 
-<!-- markdownlint-disable MD033 -->
+<!-- markdownlint-disable MD013 MD033 -->
 <p>
   <img align="left" hspace="20" src="docs/images/container-k8s-icon.png" width="147" alt="container-k8s icon: the Kubernetes wheel overlapping the standard three-row container service panel" />
   <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml?query=branch%3Amain"><img alt="CI" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/ci.yml/badge.svg?branch=main" /></a>
-  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml?query=branch%3Amain"><img alt="Quality" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/quality.yml/badge.svg?branch=main" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml?query=branch%3Amain"><img alt="CodeQL" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml/badge.svg?branch=main" /></a>
   <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml?query=branch%3Amain"><img alt="Homebrew" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/homebrew.yml/badge.svg?branch=main" /></a>
-  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml"><img alt="Prebuilt Binaries" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml/badge.svg" /></a>
+  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml?query=branch%3Amain"><img alt="Releases" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/prebuilt-binaries.yml/badge.svg?branch=main" /></a>
   <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=alert_status" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=coverage" /></a>
   <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=bugs" /></a>
   <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=code_smells" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=coverage" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Duplicated Lines (%)" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=duplicated_lines_density" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Lines of Code" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=ncloc" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=reliability_rating" /></a>
   <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=security_rating" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Technical Debt" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=sqale_index" /></a>
   <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Maintainability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=sqale_rating" /></a>
-  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=vulnerabilities" /></a>
-  <a href="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml?query=branch%3Amain"><img alt="CodeQL" src="https://github.com/stephenlclarke/container-k8s/actions/workflows/codeql.yml/badge.svg?branch=main" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Duplicated Lines" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=duplicated_lines_density" /></a>
+  <a href="https://sonarcloud.io/summary/new_code?id=stephenlclarke_container-k8s"><img alt="Lines of Code" src="https://sonarcloud.io/api/project_badges/measure?project=stephenlclarke_container-k8s&amp;metric=ncloc" /></a>
   <img alt="Repo Visitors" src="https://visitor-badge.laobi.icu/badge?page_id=stephenlclarke.container-k8s" />
 </p>
 <br clear="left" />
