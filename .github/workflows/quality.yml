@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout container-k8s
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
@@ -39,7 +39,7 @@ jobs:
           xcodebuild -version
 
       - name: Run Swift tests with Address Sanitizer
-        run: swift test --sanitize=address --no-parallel
+        run: swift test --disable-automatic-resolution --sanitize=address --no-parallel
 
   swift-thread-sanitizer:
     name: Swift TSan Nightly
@@ -48,7 +48,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout container-k8s
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
 
@@ -58,7 +58,7 @@ jobs:
           xcodebuild -version
 
       - name: Run Swift tests with Thread Sanitizer
-        run: swift test --sanitize=thread --no-parallel
+        run: swift test --disable-automatic-resolution --sanitize=thread --no-parallel
 
   swift-style-advisory:
     name: SwiftLint/SwiftFormat Advisory
@@ -67,7 +67,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Checkout container-k8s
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Install Swift style tools
         env:
