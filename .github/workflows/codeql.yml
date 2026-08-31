@@ -60,7 +60,7 @@ jobs:
           fi
 
       - name: Checkout container-k8s
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           path: container-k8s
           fetch-depth: 0
@@ -87,7 +87,7 @@ jobs:
           printf 'sha=%s\n' "$actual" >> "$GITHUB_OUTPUT"
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4.37.9
+        uses: github/codeql-action/init@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           languages: swift
           build-mode: manual
@@ -98,7 +98,7 @@ jobs:
         working-directory: container-k8s
 
       - name: Analyze
-        uses: github/codeql-action/analyze@v4.37.9
+        uses: github/codeql-action/analyze@cdf488f595d80d6e07e03d4674febd5ab45fa938 # v4.37.9
         with:
           category: "/language:swift"
           ref: refs/heads/main
