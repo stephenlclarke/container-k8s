@@ -146,8 +146,8 @@ The workflow layout mirrors `container-compose`:
 | --- | --- | --- |
 | `CI` | Pushes to `main`, PRs to `main`, and manual runs | Runs local validation. |
 | `Quality` | Pushes and PRs, with scheduled TSan | Runs sanitizer and Swift style advisory checks. |
-| `CodeQL` | Pushes to `main`, PRs to `main`, weekly schedule, and manual runs | Runs CodeQL over Swift sources. |
+| `CodeQL` | Stable packaging, plus manual recovery from `main` for an existing bare-semver release | Checks out the exact immutable release tag and commit, then runs CodeQL over Swift sources while retaining the supported `main` SARIF context. |
 | `Homebrew` | Pushes, PRs, and manual runs | Validates the Homebrew formula syntax and tap inspection. |
-| `Prebuilt Binaries` | Pushes to `main` and manual runs dispatched on a semantic tag | Runs `make ci` against the exact trusted repository ref, publishes main validation or stable assets, and updates `stephenlclarke/homebrew-tap` only for stable packages. |
+| `Prebuilt Binaries` | Pushes to `main` and manual runs dispatched on a semantic tag | Runs `make ci` against the exact trusted repository ref, publishes main validation or stable assets, updates `stephenlclarke/homebrew-tap` only for stable packages, and builds the stable DocC artifact last. |
 
 SonarCloud analysis is wired into CI and skips cleanly until a repository secret is configured.
