@@ -1,6 +1,6 @@
 # Branch Guide
 
-This repository uses `main` as the active, releasable development branch. README badges, full CI, CodeQL, SonarCloud quality reporting, package validation, and normal integration work all stay on `main`.
+This repository uses `main` as the active, releasable development branch. README badges, full CI, SonarCloud quality reporting, package validation, and normal integration work all stay on `main`. Stable packaging dispatches CodeQL from `main` for the exact semantic release tag and commit; operators can manually recover a published release while retaining a supported branch context for security results.
 
 Use short-lived topic branches only for review or recovery. Land validated work back on `main`, then delete those branches unless they are still needed for an open review.
 

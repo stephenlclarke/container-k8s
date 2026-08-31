@@ -65,8 +65,9 @@ jobs:
     name: Package
     needs: resolve-publish-context
     runs-on: macos-26
-    timeout-minutes: 45
+    timeout-minutes: 120
     permissions:
+      actions: read
       contents: write
     steps:
       - name: Checkout container-k8s
@@ -179,6 +180,45 @@ jobs:
           path: |
             ${{ runner.temp }}/${{ steps.package.outputs.asset }}
             ${{ runner.temp }}/${{ steps.package.outputs.asset }}.sha256
+
+      - name: Run stable release CodeQL
+        if: needs.resolve-publish-context.outputs.ref_type == 'tag'
+        timeout-minutes: 55
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ needs.resolve-publish-context.outputs.ref_name }}
+          RELEASE_SHA: ${{ needs.resolve-publish-context.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          dispatched_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          title="CodeQL release ${RELEASE_REF}"
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/dispatches" \
+            -f event_type=release-codeql \
+            -f "client_payload[release_ref]=${RELEASE_REF}" \
+            -f "client_payload[release_sha]=${RELEASE_SHA}"
+
+          run_id=""
+          for _ in $(seq 1 60); do
+            run_id="$(
+              gh run list --repo "$GITHUB_REPOSITORY" \
+                --workflow codeql.yml \
+                --event repository_dispatch \
+                --limit 20 \
+                --json databaseId,displayTitle,createdAt |
+                jq -r --arg title "$title" --arg since "$dispatched_at" \
+                  '[.[] | select(.displayTitle == $title and .createdAt >= $since)] | sort_by(.createdAt) | last | .databaseId // empty'
+            )"
+            if [[ -n "$run_id" ]]; then
+              break
+            fi
+            sleep 2
+          done
+          if [[ -z "$run_id" ]]; then
+            printf 'Timed out locating CodeQL run for %s\n' "$RELEASE_REF" >&2
+            exit 1
+          fi
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
 
       - name: Publish GitHub release
         env:
@@ -306,3 +346,20 @@ jobs:
           git add Formula/container-k8s.rb
           git commit -m "chore(homebrew): update container-k8s ${{ steps.package.outputs.formula_version }}"
           git push
+
+      - name: Build stable release DocC documentation
+        if: needs.resolve-publish-context.outputs.ref_type == 'tag'
+        run: make docs
+        working-directory: container-k8s
+
+      - name: Archive stable release DocC documentation
+        if: needs.resolve-publish-context.outputs.ref_type == 'tag'
+        run: tar -czf "${RUNNER_TEMP}/container-k8s-docc.tgz" -C container-k8s/_site .
+
+      - name: Upload stable release DocC documentation
+        if: needs.resolve-publish-context.outputs.ref_type == 'tag'
+        uses: actions/upload-artifact@v7
+        with:
+          name: container-k8s-docc
+          path: ${{ runner.temp }}/container-k8s-docc.tgz
+          retention-days: 7
