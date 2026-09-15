@@ -157,7 +157,17 @@ sonar-scan:
 		printf 'SONAR_TOKEN or SONAR_TOKEN_PERSONAL is required for sonar-scan\n' >&2; \
 		exit 2; \
 	}
-	sonar-scanner
+	@head_version="$$(git rev-parse --verify HEAD)"; \
+	project_version="$${SONAR_PROJECT_VERSION:-$$head_version}"; \
+	if [[ ! "$$project_version" =~ ^[0-9a-f]{40}$$ ]]; then \
+		printf 'SONAR_PROJECT_VERSION must be an exact lowercase commit SHA\n' >&2; \
+		exit 2; \
+	fi; \
+	if [[ "$$project_version" != "$$head_version" ]]; then \
+		printf 'SONAR_PROJECT_VERSION must match checked-out HEAD %s\n' "$$head_version" >&2; \
+		exit 2; \
+	fi; \
+	sonar-scanner -Dsonar.projectVersion="$$project_version"
 
 clean:
 	rm -rf .build .swiftpm "$(DIST_DIR)" "$(PLUGIN_ARCHIVE)" "$(PLUGIN_ARCHIVE).sha256" .scannerwork _site coverage.lcov coverage.xml

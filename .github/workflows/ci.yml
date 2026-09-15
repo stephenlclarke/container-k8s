@@ -35,6 +35,7 @@ jobs:
         with:
           path: container-k8s
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Compute SwiftPM cache fingerprint
         id: swiftpm-cache
@@ -136,6 +137,49 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.SONAR_TOKEN_PERSONAL }}
         run: make sonar-scan
         working-directory: container-k8s
+
+      - name: Validate SonarCloud policy and findings
+        if: >
+          env.HAS_SONAR_TOKEN == 'true' &&
+          (github.ref == 'refs/heads/main' || github.event_name == 'pull_request') &&
+          (github.event_name != 'pull_request' ||
+            (github.event.pull_request.head.repo.full_name == github.repository &&
+             github.actor != 'dependabot[bot]'))
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN || secrets.SONAR_TOKEN_PERSONAL }}
+        run: |
+          set -euo pipefail
+          settings="$(curl --fail --silent --show-error --user "${SONAR_TOKEN}:" --get \
+            --data-urlencode 'component=stephenlclarke_container-k8s' \
+            --data-urlencode 'keys=sonar.leak.period,sonar.leak.period.type' \
+            https://sonarcloud.io/api/settings/values)"
+          jq -e '
+            ([.settings[] | select(.key == "sonar.leak.period") | .value] == ["previous_version"])
+            and ([.settings[] | select(.key == "sonar.leak.period.type") | .value] == ["previous_version"])
+          ' <<< "${settings}" >/dev/null
+          if [[ "${GITHUB_EVENT_NAME}" == 'pull_request' ]]; then
+            issues="$(curl --fail --silent --show-error --user "${SONAR_TOKEN}:" --get \
+              --data-urlencode 'componentKeys=stephenlclarke_container-k8s' \
+              --data-urlencode 'resolved=false' --data-urlencode 'inNewCodePeriod=true' \
+              --data-urlencode 'ps=1' --data-urlencode 'pullRequest=${{ github.event.pull_request.number }}' \
+              https://sonarcloud.io/api/issues/search)"
+            hotspots="$(curl --fail --silent --show-error --user "${SONAR_TOKEN}:" --get \
+              --data-urlencode 'projectKey=stephenlclarke_container-k8s' \
+              --data-urlencode 'status=TO_REVIEW' --data-urlencode 'inNewCodePeriod=true' \
+              --data-urlencode 'ps=1' --data-urlencode 'pullRequest=${{ github.event.pull_request.number }}' \
+              https://sonarcloud.io/api/hotspots/search)"
+          else
+            issues="$(curl --fail --silent --show-error --user "${SONAR_TOKEN}:" --get \
+              --data-urlencode 'componentKeys=stephenlclarke_container-k8s' \
+              --data-urlencode 'resolved=false' --data-urlencode 'ps=1' \
+              --data-urlencode 'branch=main' https://sonarcloud.io/api/issues/search)"
+            hotspots="$(curl --fail --silent --show-error --user "${SONAR_TOKEN}:" --get \
+              --data-urlencode 'projectKey=stephenlclarke_container-k8s' \
+              --data-urlencode 'status=TO_REVIEW' --data-urlencode 'ps=1' \
+              --data-urlencode 'branch=main' https://sonarcloud.io/api/hotspots/search)"
+          fi
+          jq -e '.total == 0' <<< "${issues}" >/dev/null
+          jq -e '.paging.total == 0' <<< "${hotspots}" >/dev/null
 
       - name: Skip SonarCloud scan
         if: >
